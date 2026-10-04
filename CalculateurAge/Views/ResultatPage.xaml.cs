@@ -1,26 +1,29 @@
+using CalculateurAge.ViewModels;
+
 namespace CalculateurAge.Views;
 
-// Relie les paramètres de l'URL aux propriétés.
-[QueryProperty(nameof(Nom), "nom")]
-[QueryProperty(nameof(Age), "age")]
-public partial class ResultatPage : ContentPage
+public partial class ResultatPage : ContentPage, IQueryAttributable
 {
-    // Ces propriétés sont remplies par la navigation,
-    // APRÈS le constructeur.
-    public string Nom { get; set; }
-    public string Age { get; set; }
-
-    // Construit l'arbre visuel décrit par le XAML.
-    public ResultatPage() => InitializeComponent();
-
-    // Appelée à CHAQUE affichage de la page.
-    protected override void OnAppearing()
+    public ResultatPage()
     {
-        base.OnAppearing();
-        lblMessage.Text = $"{Nom}, vous avez {Age} ans";
+        InitializeComponent();
+        BindingContext = new ResultatViewModel();
     }
 
-    // ".." = revenir à la page précédente.
-    private async void OnRetourClicked(object s, EventArgs e)
-        => await Shell.Current.GoToAsync("..");
+    public void ApplyQueryAttributes(IDictionary<string, object> query)
+    {
+        if (query != null && BindingContext is ResultatViewModel vm)
+        {
+            vm.Nom = query.ContainsKey("nom") ? query["nom"].ToString() : "";
+
+            if (query.ContainsKey("age") && int.TryParse(query["age"].ToString(), out int age))
+                vm.Age = age;
+
+            if (query.ContainsKey("message"))
+                vm.Message = query["message"].ToString() ?? "";
+
+            if (query.ContainsKey("info"))
+                vm.InfoAnniversaire = query["info"].ToString() ?? "";
+        }
+    }
 }

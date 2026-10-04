@@ -5,8 +5,13 @@
              Title="Résultat">
 
     <VerticalStackLayout Padding="30" Spacing="16">
-        <Label x:Name="lblMessage" FontSize="22"/>
-        <Button Text="Retour" Clicked="OnRetourClicked"/>
+        <StackLayout>
+            <Label Text="{Binding Nom, StringFormat='Nom: {0}'}" FontSize="18" FontAttributes="Bold"/>
+            <Label Text="{Binding Age, StringFormat='Âge: {0} ans'}" FontSize="18"/>
+            <Label Text="{Binding Message, StringFormat='Status: {0}'}" FontSize="16" FontAttributes="Bold" TextColor="Green"/>
+            <Label Text="{Binding InfoAnniversaire}" FontSize="14"/>
+        </StackLayout>
+        <Button Text="Retour" Command="{Binding RetourCommand}"/>
     </VerticalStackLayout>
 
 </ContentPage>

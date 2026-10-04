@@ -8,10 +8,37 @@
         <VerticalStackLayout Padding="20" Spacing="12">
             <Label Text="Nom" FontSize="16"/>
             <Entry Text="{Binding Nom, Mode=TwoWay}" Placeholder="Votre nom"/>
+
             <Label Text="Date de naissance" FontSize="16"/>
             <DatePicker Date="{Binding DateNaissance, Mode=TwoWay}"/>
-            <Button Text="Calculer" Command="{Binding CalculerCommand}"/>
-            <Label Text="{Binding Resultat}" FontSize="20" IsVisible="{Binding ResultatVisible}"/>
+
+            <!-- Fonctionnalité 1: Message Majeur/Mineur -->
+            <Label Text="{Binding Message}" FontSize="18" FontAttributes="Bold" TextColor="Green" IsVisible="{Binding ResultatVisible}"/>
+
+            <!-- Boutons d'action -->
+            <HorizontalStackLayout Spacing="10">
+                <Button Text="Calculer" Command="{Binding CalculerCommand}" HorizontalOptions="FillAndExpand"/>
+                <Button Text="Effacer" Command="{Binding EffacerCommand}" HorizontalOptions="FillAndExpand"/>
+            </HorizontalStackLayout>
+
+            <!-- Résultat principal -->
+            <Label Text="{Binding Resultat}" FontSize="20" FontAttributes="Bold" IsVisible="{Binding ResultatVisible}"/>
+
+            <!-- Fonctionnalité 3: Jours anniversaire -->
+            <Label Text="{Binding InfoAnniversaire}" FontSize="14" IsVisible="{Binding ResultatVisible}"/>
+
+            <!-- Fonctionnalité 5: Bouton pour voir le résultat détaillé -->
+            <Button Text="Voir le résultat" Command="{Binding VoirResultatCommand}" IsVisible="{Binding ResultatVisible}" HorizontalOptions="FillAndExpand"/>
+
+            <!-- Fonctionnalité 4: Historique -->
+            <Label Text="Historique" FontSize="16" FontAttributes="Bold" IsVisible="{Binding Historique.Count}"/>
+            <CollectionView ItemsSource="{Binding Historique}" SelectionMode="None">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Label Text="{Binding .}" Padding="10,5" FontSize="12" TextColor="Gray"/>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
         </VerticalStackLayout>
     </ScrollView>
 
