@@ -1,4 +1,5 @@
 ﻿using CalculateurAge.Views;
+using CalculateurAge.Services;
 
 namespace CalculateurAge
 {
@@ -7,9 +8,9 @@ namespace CalculateurAge
         public AppShell()
         {
             InitializeComponent();
-            // Déclare la route : sans cette ligne, GoToAsync
-            // lève une exception "route inconnue".
-            Routing.RegisterRoute(nameof(ResultatPage), typeof(ResultatPage));
+            // Déclare la route avec le même nom que Routes.ResultatPageRoute
+            // Sans cette ligne, GoToAsync lève une exception "route inconnue".
+            Routing.RegisterRoute(Routes.ResultatPageRoute, typeof(ResultatPage));
         }
     }
 }

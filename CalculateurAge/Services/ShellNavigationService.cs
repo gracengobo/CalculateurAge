@@ -7,7 +7,7 @@ public class ShellNavigationService : INavigationService
     public async Task GoToAsync(string route, IDictionary<string, object> parameters)
     {
         // Construire l'URL avec les paramètres
-        string queryString = Route(route, parameters);
+        string queryString = BuildRoute(route, parameters);
         await Shell.Current.GoToAsync(queryString);
     }
 
@@ -16,15 +16,14 @@ public class ShellNavigationService : INavigationService
         await Shell.Current.GoToAsync("..");
     }
 
-    private static string Route(string route, IDictionary<string, object> parameters)
+    private static string BuildRoute(string route, IDictionary<string, object> parameters)
     {
-        var uriBuilder = new UriBuilder(route);
-        if (parameters != null && parameters.Count > 0)
-        {
-            var queryParams = string.Join("&", 
-                parameters.Select(p => $"{p.Key}={Uri.EscapeDataString(p.Value?.ToString() ?? "")}"));
-            uriBuilder.Query = queryParams;
-        }
-        return uriBuilder.ToString();
+        if (parameters == null || parameters.Count == 0)
+            return route;
+
+        var queryParams = string.Join("&", 
+            parameters.Select(p => $"{p.Key}={Uri.EscapeDataString(p.Value?.ToString() ?? "")}"));
+
+        return $"{route}?{queryParams}";
     }
 }

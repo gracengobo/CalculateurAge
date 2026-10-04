@@ -6,16 +6,16 @@ namespace CalculateurAge.ViewModels;
 public class CalculateurViewModel : BaseViewModel
 {
     // Contient l'ÉTAT de l'écran et les ACTIONS possibles.
-    // Champs privés : la vraie donnée.
     private string _nom = "";
     private DateTime _dateNaissance = DateTime.Today.AddYears(-20);
     private string _resultat = "";
     private string _message = "";
     private string _infoAnniversaire = "";
     private bool _resultatVisible;
+    private int _ageCalculé; // Cache l'âge pour VoirResultat
 
     private readonly ObservableCollection<string> _historique = new();
-    private readonly INavigationService _navigationService;
+    private INavigationService _navigationService;
 
     // Propriétés publiques : ce que le XAML voit.
     public string Nom
@@ -35,7 +35,6 @@ public class CalculateurViewModel : BaseViewModel
         {
             if (SetField(ref _dateNaissance, value))
             {
-                // Rafraîchir le bouton si la date change
                 CalculerCommand.Rafraichir();
             }
         }
@@ -75,7 +74,16 @@ public class CalculateurViewModel : BaseViewModel
 
     public CalculateurViewModel()
     {
-        _navigationService = MauiProgram.ServiceProvider.GetService<INavigationService>();
+        // Initialiser le service de navigation
+        try
+        {
+            _navigationService = MauiProgram.ServiceProvider?.GetService<INavigationService>();
+        }
+        catch
+        {
+            // Si le conteneur n'est pas encore prêt, créer une implémentation par défaut
+            _navigationService = null;
+        }
 
         CalculerCommand = new RelayCommand(
             Calculer,
@@ -89,8 +97,11 @@ public class CalculateurViewModel : BaseViewModel
     private void Calculer()
     {
         int age = DateTime.Today.Year - DateNaissance.Year;
-        if (DateNaissance.Date >
-            DateTime.Today.AddYears(-age)) age--;
+        if (DateNaissance.Date > DateTime.Today.AddYears(-age)) 
+            age--;
+
+        // Sauvegarder l'âge pour VoirResultat
+        _ageCalculé = age;
 
         // Fonctionnalité 1: Message Majeur/Mineur
         Message = age >= 18 ? "Majeur" : "Mineur";
@@ -116,22 +127,40 @@ public class CalculateurViewModel : BaseViewModel
         Message = "";
         InfoAnniversaire = "";
         ResultatVisible = false;
+        _ageCalculé = 0;
     }
 
     // Fonctionnalité 5: Navigation vers ResultatPage
     private async void VoirResultat()
     {
-        if (!ResultatVisible) return;
+        if (!ResultatVisible)
+            return;
 
-        var parameters = new Dictionary<string, object>
+        try
         {
-            { "nom", Nom },
-            { "age", DateTime.Today.Year - DateNaissance.Year - (DateNaissance.Date > DateTime.Today.AddYears(-(DateTime.Today.Year - DateNaissance.Year)) ? 1 : 0) },
-            { "message", Message },
-            { "info", InfoAnniversaire }
-        };
+            // Initialiser le service si pas déjà fait
+            _navigationService ??= MauiProgram.ServiceProvider?.GetService<INavigationService>();
 
-        await _navigationService.GoToAsync(Routes.ResultatPageRoute, parameters);
+            if (_navigationService == null)
+            {
+                System.Diagnostics.Debug.WriteLine("NavigationService is null!");
+                return;
+            }
+
+            var parameters = new Dictionary<string, object>
+            {
+                { "nom", Nom },
+                { "age", _ageCalculé },
+                { "message", Message },
+                { "info", InfoAnniversaire }
+            };
+
+            await _navigationService.GoToAsync(Routes.ResultatPageRoute, parameters);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Navigation error: {ex.Message}");
+        }
     }
 
     // Calcul des jours restants avant le prochain anniversaire

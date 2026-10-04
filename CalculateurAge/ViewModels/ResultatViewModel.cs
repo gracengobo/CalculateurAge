@@ -35,16 +35,29 @@ public class ResultatViewModel : BaseViewModel
 
     public RelayCommand RetourCommand { get; }
 
-    private readonly INavigationService _navigationService;
+    private INavigationService _navigationService;
 
     public ResultatViewModel()
     {
-        _navigationService = MauiProgram.ServiceProvider.GetService<INavigationService>();
+        // Obtenir le service de navigation du container
+        _navigationService = MauiProgram.ServiceProvider?.GetService<INavigationService>();
+
+        // Fallback: créer une implémentation directe si ServiceProvider n'est pas disponible
+        _navigationService ??= new ShellNavigationService();
+
         RetourCommand = new RelayCommand(Retour);
     }
 
     private async void Retour()
     {
-        await _navigationService.GoBackAsync();
+        try
+        {
+            if (_navigationService != null)
+                await _navigationService.GoBackAsync();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Navigation error: {ex.Message}");
+        }
     }
 }
